@@ -94,6 +94,16 @@ setup_client = SyncClient.create(
 print('Setting up local cloud…')
 
 # -------------------------------------------------------------------
+# Prefix→config-key mapping to match default_config names
+# -------------------------------------------------------------------
+prefix_map = {
+    'serviceregistry': 'service_registry',  # FIXED: map to underscore key
+    'orchestrator': 'orchestrator',
+    'authorization': 'authorization',
+}
+
+
+# -------------------------------------------------------------------
 # Step 6: Store orchestration-management rules over HTTP-INSECURE-JSON
 # -------------------------------------------------------------------
 for svc_name, path, method in [
@@ -103,18 +113,20 @@ for svc_name, path, method in [
     ('mgmt_orchestration_store', 'orchestrator/mgmt/store', 'POST'),
     ('mgmt_authorization_store', 'authorization/mgmt/intracloud', 'POST'),
 ]:
+    prefix = path.split('/')[0]
+    cfg_key = prefix_map[prefix]  # USE the mapped key
     setup_client.orchestration_rules.store(
         OrchestrationRule(
             Service(
                 svc_name,
                 path,
-                # CHANGE: switched to INSECURE interface
                 ServiceInterface.from_str('HTTP-INSECURE-JSON'),
             ),
-            ArrowheadSystem(**default_config[ svc_name.split('_')[1] ]),
+            ArrowheadSystem(**default_config[cfg_key]),
             method,
         )
     )
+
 
 # -------------------------------------------------------------------
 # Step 7: Final client setup call
@@ -124,8 +136,16 @@ setup_client.setup()
 # -------------------------------------------------------------------
 # Step 8: Register example consumer & provider systems
 # -------------------------------------------------------------------
-consumer_system = ArrowheadSystem('quickstart-consumer', '127.0.0.1', 7656)
-provider_system = ArrowheadSystem('quickstart-provider', '127.0.0.1', 7655)
+consumer_system = ArrowheadSystem(
+        system_name='quickstart-consumer',
+        address='127.0.0.1',
+        port=7656
+)
+provider_system = ArrowheadSystem(
+        system_name='quickstart-provider',
+        address='127.0.0.1',
+        port=7655,
+)
 
 consumer_data = setup_client.consume_service(
     'mgmt_register_system', json=consumer_system.dto()
