@@ -8,10 +8,7 @@ from arrowhead_client.client.implementations import AsyncClient
 consumer = AsyncClient.create(
         system_name='quickstart-consumer',
         address='127.0.0.1',
-        port=7656,
-        keyfile='certificates/crypto/quickstart-consumer.key',
-        certfile='certificates/crypto/quickstart-consumer.crt',
-        cafile='certificates/crypto/sysop.ca',
+        port=7656
 )
 
 

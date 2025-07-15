@@ -20,7 +20,7 @@ class TestClient(AsyncClient):
             protocol='HTTP',
             method='GET',
             payload_format='JSON',
-            access_policy='CERTIFICATE', )
+            access_policy='NOT_SECURE', )
     def hello(self, request: Dict = None):
         return {'msg': self.format}
 
@@ -29,9 +29,6 @@ provider = TestClient.create(
         system_name='quickstart-provider',
         address='127.0.0.1',
         port=7655,
-        keyfile='certificates/crypto/quickstart-provider.key',
-        certfile='certificates/crypto/quickstart-provider.crt',
-        cafile='certificates/crypto/sysop.ca',
         format='B'
 )
 
@@ -54,7 +51,7 @@ async def hello_arrowhead(request: Dict = None):
         protocol='HTTP',
         method='PUT',
         payload_format='JSON',
-        access_policy='CERTIFICATE', )
+        access_policy='NOT_SECURE', )
 async def echo(request: Dict):
     body = request
 
@@ -67,7 +64,7 @@ async def echo(request: Dict):
         protocol='WS',
         method='',
         payload_format='JSON',
-        access_policy='CERTIFICATE',
+        access_policy='NOT_SECURE',
 )
 async def ws_test(websocket: WebSocket):
     await websocket.accept()
