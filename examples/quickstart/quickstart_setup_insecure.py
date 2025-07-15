@@ -3,14 +3,11 @@
 quickstart_setup_insecure.py
 
 A variant of the quickstart setup that:
-  - Preserves the MySQL volume if it already exists (no more endless init loops)
   - Uses INSECURE (HTTP, no TLS) mode for faster local dev
   - Registers Arrowhead core systems and example services over HTTP-INSECURE-JSON
   - Simplifies client creation (no cert/key/cafile needed)
 
 CHANGE NOTES:
-  * Removed unconditional `docker volume rm mysql.quickstart`
-  * Added conditional volume creation if `mysql.quickstart` doesn’t exist
   * Switched all `ServiceInterface` entries from SECURE to INSECURE
   * Changed access policies for example services to NOT_SECURE
   * Switched health-check requests from HTTPS → HTTP (no certs)
@@ -38,18 +35,10 @@ from arrowhead_client.client.implementations import SyncClient
 subprocess.run(['docker-compose', 'down'])
 
 # -------------------------------------------------------------------
-# Step 2: Create mysql.quickstart volume only if it doesn't already exist
+# Step 2: Create mysql.quickstart volume 
 # -------------------------------------------------------------------
-vol_ls = subprocess.run(
-    ['docker', 'volume', 'ls', '-q', '-f', 'name=mysql.quickstart'],
-    capture_output=True, text=True
-)
-if not vol_ls.stdout.strip():
-    # CHANGE: we're now conditionally creating the volume instead of destroying it each run
-    subprocess.run(['docker', 'volume', 'create', '--name', 'mysql.quickstart'])
-    print(">> Created mysql.quickstart volume")
-else:
-    print(">> mysql.quickstart volume already exists, skipping creation")
+subprocess.run(['docker', 'volume', 'rm', 'mysql.quickstart'])
+subprocess.run(['docker', 'volume', 'create', '--name', 'mysql.quickstart'])
 
 # -------------------------------------------------------------------
 # Step 3: Start up all services
